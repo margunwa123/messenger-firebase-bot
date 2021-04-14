@@ -3,7 +3,8 @@ const User = require("../models/user");
 const router = require("express").Router();
 
 router.get("/", async (req, res) => {
-  const sender_psid = req.body.user.id;
+  const sender_psid = req.query.userId;
+  console.log(sender_psid);
   const user = new User(sender_psid);
 
   try {
@@ -16,7 +17,7 @@ router.get("/", async (req, res) => {
 });
 
 router.delete("/:messageId", async (req, res) => {
-  const sender_psid = req.body.user.id;
+  const sender_psid = req.query.userId;
   const { messageId } = req.params;
   try {
     const user = new User(sender_psid);
@@ -30,7 +31,7 @@ router.delete("/:messageId", async (req, res) => {
 });
 
 router.get("/:messageId", async (req, res) => {
-  const sender_psid = req.body.user.id;
+  const sender_psid = req.query.userId;
   const { messageId } = req.params;
   try {
     const user = new User(sender_psid);

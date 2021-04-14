@@ -48,7 +48,7 @@ class User {
     if (data) {
       this.name = data.name;
       if (data.birthdate) {
-        this.birthdate = new Date(data.birthdate._seconds);
+        this.birthdate = new Date(data.birthdate._seconds * 1000);
       }
       this.context = data.context;
     }

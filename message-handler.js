@@ -86,10 +86,7 @@ async function handleMessage(sender_psid, message) {
       response = {
         text: `Welcome back ${user.name}!, do you want to know how many days are left until your birthday?`,
       };
-      user.setContext("user-complete-2");
-      break;
-    case "user-complete-2":
-      response = {};
+      user.setContext("get-days-until-birthday");
       break;
     default:
       response = {
