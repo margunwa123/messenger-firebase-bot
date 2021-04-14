@@ -4,12 +4,15 @@ const PORT = process.env.PORT || 1337;
 const app = express();
 require("dotenv").config();
 
+let VERIFY_TOKEN = process.env.VERIFY_TOKEN || "VERIFY_TOKEN";
+
+let PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+
 app.use(express.json());
 
 // Adds support for GET requests to our webhook
 app.get("/webhook", (req, res) => {
   // Your verify token. Should be a random string.
-  let VERIFY_TOKEN = process.env.VERIFY_TOKEN || "VERIFY_TOKEN";
 
   // Parse the query params
   let mode = req.query["hub.mode"];
@@ -41,6 +44,9 @@ app.post("/webhook", (req, res) => {
       // will only ever contain one message, so we get index 0
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
+
+      let sender_psid = webhook.event.sender.id;
+      console.log("SENDER PSID: " + sender_psid);
     });
 
     // Returns a '200 OK' response to all requests
