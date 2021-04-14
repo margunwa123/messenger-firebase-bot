@@ -1,7 +1,7 @@
 # Messenger Chatbot
 
-URL : https://www.messenger.com/t/105670314980606
-Heroku Server URL: https://chatbot-messenger-app-123.herokuapp.com
+- URL : https://www.messenger.com/t/105670314980606
+- Heroku Server URL: https://chatbot-messenger-app-123.herokuapp.com
 
 # How to run locally:
 
@@ -32,6 +32,8 @@ After the user typed something, the application will determine what to do next. 
 User: Hello!<br/>
 App: Hello there, can I have your name?<br/>
 ...
+
+The application will save your information you once you have started the interview part (getting your name, getting your birthdate). So when you open the messenger application, you will not need to enter a new name or a new birthdate
 
 # Folder Structure
 
@@ -85,6 +87,10 @@ Result:
   }
 ]
 ```
+
+# Demo Video
+
+You can view the chat application in action at /demo/video.mkv.
 
 # More Information
 
