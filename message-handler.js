@@ -27,6 +27,7 @@ async function handleMessage(sender_psid, message) {
         response = {
           text: `Hello ${name}, nice to meet you! can I have your birthday?`,
         };
+        user.setName(name);
         user.setContext("get-birthdate");
       } else if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
         response = {
@@ -40,8 +41,8 @@ async function handleMessage(sender_psid, message) {
       break;
     case "get-birthdate":
       const datetime = firstTrait(message.nlp, "wit$datetime");
+      console.log(JSON.stringify(message.nlp));
       console.log(datetime);
-      console.log(datetime.value);
       response = {
         text: "What an amazing date!",
       };
