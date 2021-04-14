@@ -6,6 +6,7 @@ router.get("/", async (req, res) => {
   const sender_psid = req.query.userId;
   console.log(sender_psid);
   const user = new User(sender_psid);
+  await user.getUser();
 
   try {
     const messages = await user.getAllMessages();

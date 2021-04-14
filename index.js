@@ -8,8 +8,6 @@ require("dotenv").config();
 
 let VERIFY_TOKEN = process.env.VERIFY_TOKEN || "VERIFY_TOKEN";
 
-let PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-
 app.use(express.json());
 initiateRouter(app);
 
