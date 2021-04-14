@@ -47,7 +47,9 @@ class User {
     const data = (await this.ref.get()).data();
     if (data) {
       this.name = data.name;
-      this.birthdate = new Date(data.birthdate._seconds);
+      if (data.birthdate) {
+        this.birthdate = new Date(data.birthdate._seconds);
+      }
       this.context = data.context;
     }
     return data;
