@@ -1,7 +1,7 @@
 const request = require("request");
 
 // Handles messages events
-export function handleMessage(sender_psid, received_message) {
+function handleMessage(sender_psid, received_message) {
   let response;
 
   // check if the message contains text
@@ -16,10 +16,10 @@ export function handleMessage(sender_psid, received_message) {
 }
 
 // Handles messaging_postbacks events
-export function handlePostback(sender_psid, received_postback) {}
+function handlePostback(sender_psid, received_postback) {}
 
 // Sends response messages via the Send API
-export function callSendAPI(sender_psid, response) {
+function callSendAPI(sender_psid, response) {
   // construct the message body
   let request_body = {
     recipient: {
@@ -47,3 +47,9 @@ export function callSendAPI(sender_psid, response) {
     }
   );
 }
+
+module.exports = {
+  handleMessage,
+  callSendAPI,
+  handlePostback,
+};
