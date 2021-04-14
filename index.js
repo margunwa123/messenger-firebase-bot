@@ -1,6 +1,6 @@
 const express = require("express");
 const { handleMessage, handlePostback } = require("./message-handler");
-const { default: initiateRouter } = require("./routes");
+const initiateRouter = require("./routes");
 
 const PORT = process.env.PORT || 1337;
 const app = express();

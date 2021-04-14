@@ -1,5 +1,6 @@
 const messageRouter = require("./messages");
-
-export default function initiateRouter(app) {
+function initiateRouter(app) {
   app.use("/messages", messageRouter);
 }
+
+module.exports = initiateRouter;
