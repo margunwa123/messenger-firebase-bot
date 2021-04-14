@@ -1,5 +1,6 @@
 const express = require("express");
 const { handleMessage, handlePostback } = require("./message-handler");
+const { default: initiateRouter } = require("./routes");
 
 const PORT = process.env.PORT || 1337;
 const app = express();
@@ -10,6 +11,7 @@ let VERIFY_TOKEN = process.env.VERIFY_TOKEN || "VERIFY_TOKEN";
 let PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
 app.use(express.json());
+initiateRouter(app);
 
 // Adds support for GET requests to our webhook
 app.get("/webhook", (req, res) => {
@@ -34,7 +36,7 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-app.post("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
   let body = req.body;
 
   // Checks this is an event from a page subscription
@@ -47,6 +49,7 @@ app.post("/webhook", (req, res) => {
       console.log(webhook_event);
 
       let sender_psid = webhook_event.sender.id;
+
       console.log("SENDER PSID: " + sender_psid);
 
       // check if the event is a message or postback and

@@ -1,67 +1,35 @@
 const request = require("request");
+const User = require("./models/user");
+
+const CONFIDENCE_THRESHOLD =  0.7;
 
 function firstTrait(nlp, name) {
   return nlp && nlp.entities && nlp.traits[name] && nlp.traits[name][0];
 }
 
-// // Handles messages events
-// function handleMessage(sender_psid, received_message) {
-//   let response;
+function handleMessage(sender_psid, message) {      
+  const user = new User(sender_psid);
+  const userData = await user.getUser();
+  if(!userData) await user.saveUser();
 
-//   // check if the message contains text
-//   if (received_message.text) {
-//     // create the payload for a basic text message
-//     response = {
-//       text: `You sent the message ${received_message.text}. Now send me an image!`,
-//     };
-//   } else if (received_message.attachments) {
-//     let attachment_url = received_message.attachments[0].payload.url;
-//     response = {
-//       attachment: {
-//         type: "template",
-//         payload: {
-//           template_type: "generic",
-//           elements: [
-//             {
-//               title: "Is this the right picture?",
-//               subtitle: "Tap a button to answer.",
-//               image_url: attachment_url,
-//               buttons: [
-//                 {
-//                   type: "postback",
-//                   title: "Yes!",
-//                   payload: "yes",
-//                 },
-//                 {
-//                   type: "postback",
-//                   title: "No!",
-//                   payload: "no",
-//                 },
-//               ],
-//             },
-//           ],
-//         },
-//       },
-//     };
-//   }
-
-//   // Send the response message
-//   callSendAPI(sender_psid, response);
-// }
-
-function handleMessage(sender_psid, message) {
   // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
+  const datetime = firstTrait(message.nlp, "wit$datetime:$datetime");
   let response;
   console.log(JSON.stringify(message.nlp));
-  if (greeting && greeting.confidence > 0.8) {
+  if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
     response = {
-      text: "hello there",
+      text: "Hello there! Can I have your name?",
     };
   } else {
     response = {
-      text: "default sending",
+      text: "Hello there! Can I have your name?",
     };
+  }
+  if(datetime && datetime.confidence > CONFIDENCE_THRESHOLD) {
+    response = {
+      text: "what a wonderful date!"
+    }
   }
   callSendAPI(sender_psid, response);
 }
