@@ -105,7 +105,6 @@ async function handleMessage(sender_psid, message) {
       const datetime = getEntityValue(message.nlp, "wit$datetime:datetime");
       if (datetime) {
         response = {
-          text: `What a beautiful date, ${user.name}! Do you want to get how many days are left until your birthday?`,
           attachment: createBirthdayAttachment(),
         };
         user.setBirthdate(new Date(datetime));
@@ -131,15 +130,12 @@ async function handleMessage(sender_psid, message) {
         user.setContext("user-complete");
       } else {
         response = {
-          text:
-            "Sorry i did not quite get that, do you want to get how many days are left until your birthday?",
           attachment: createBirthdayAttachment(),
         };
       }
       break;
     case "user-complete":
       response = {
-        text: `Welcome back ${user.name}!, do you want to know how many days are left until your birthday?`,
         attachment: createBirthdayAttachment(),
       };
       user.setContext("get-days-until-birthday");
