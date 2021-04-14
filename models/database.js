@@ -4,9 +4,9 @@ const serviceAccountKey = require("../serviceAccountKey.json");
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
-      privateKey: serviceAccountKey.private_key,
-      projectId: serviceAccountKey.project_id,
-      clientEmail: serviceAccountKey.client_email,
+      privateKey: process.env.PRIVATE_KEY,
+      projectId: process.env.PROJECT_ID,
+      clientEmail: process.env.CLIENT_EMAIL,
     }),
   });
 }
