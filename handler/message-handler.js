@@ -17,12 +17,12 @@ async function handleMessage(sender_psid, message) {
   let response;
 
   const isGreeting = isTraitPassable(message.nlp, "wit$greetings");
-  if (isEntityPassable(message.nlp, "wit$thanks")) {
+  if (isTraitPassable(message.nlp, "wit$thanks")) {
     response = { text: "Your welcome!" };
     callSendAPI(sender_psid, response);
     return;
   }
-  if (isEntityPassable(message.nlp, "wit$bye")) {
+  if (isTraitPassable(message.nlp, "wit$bye")) {
     response = { text: "See you later!" };
     callSendAPI(sender_psid, response);
     return;
