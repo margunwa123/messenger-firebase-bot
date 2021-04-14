@@ -1,12 +1,12 @@
 const request = require("request");
 const User = require("../models/user");
 const extractName = require("../nlp/extractName");
-const { getHowManyDaysUntilBirthday } = require("../util/birthday");
+const { getHowManyDaysUntilBirthday } = require("../util/birthdayCalculate");
 const _ = require("lodash");
 const { isSayingYes, isSayingNo } = require("../util/yesorno");
 const { createBirthdayAttachment } = require("./response/birthday");
 const { isTraitPassable } = require("./nlp/trait");
-const { isEntityPassable, getEntityValue } = require("./nlp/entity");
+const { getEntityValue } = require("./nlp/entity");
 
 async function handleMessage(sender_psid, message) {
   const user = new User(sender_psid);
@@ -15,6 +15,14 @@ async function handleMessage(sender_psid, message) {
 
   user.addMessage(message.text, "self");
   let response;
+
+  if (message.text === "user-id") {
+    response = {
+      text: sender_psid,
+    };
+    callSendAPI(sender_psid, response);
+    return;
+  }
 
   const isGreeting = isTraitPassable(message.nlp, "wit$greetings");
   if (isTraitPassable(message.nlp, "wit$thanks")) {
