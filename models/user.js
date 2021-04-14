@@ -56,15 +56,18 @@ class User {
   }
 
   async getName() {
-    return (await this.getUser()).name;
+    return this.name;
+  }
+
+  async getContext() {
+    return this.context;
   }
 
   async getBirthdate() {
-    const dateFromDb = await this.getUser().date;
-    return new Date(dateFromDb._seconds);
+    return this.birthdate;
   }
 
-  async addMessage(text, sender, id) {
+  async addMessage(text, sender) {
     const messageAdded = await this.messagesRef.add({
       text,
       sender,

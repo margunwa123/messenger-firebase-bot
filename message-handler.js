@@ -1,5 +1,7 @@
 const request = require("request");
 const User = require("./models/user");
+const extractName = require("./nlp/extractName");
+const { getHowManyDaysUntilBirthday } = require("./util/birthday");
 
 const CONFIDENCE_THRESHOLD = 0.7;
 
@@ -12,27 +14,62 @@ async function handleMessage(sender_psid, message) {
   const userData = await user.getUser();
   if (!userData) await user.saveUser();
 
-  console.log(user.context);
+  user.addMessage(message.text, "self");
+  let response;
 
   // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
-  const datetime = firstTrait(message.nlp, "wit$datetime:$datetime");
-  let response;
-  console.log(JSON.stringify(datetime));
-  if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
-    response = {
-      text: "Hello there! Can I have your name?",
-    };
-  } else {
-    response = {
-      text: "Hello there! Can I have your name?",
-    };
+
+  switch (user.context) {
+    case "get-name":
+      const name = extractName(message.text);
+      if (name) {
+        response = {
+          text: `Hello ${name}, nice to meet you! can I have your birthday?`,
+        };
+        user.setContext("get-birthdate");
+      } else if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
+        response = {
+          text: "Hello there! Can i have your name?",
+        };
+      } else {
+        response = {
+          text: "Sorry i did not quite get that, can i have your name?",
+        };
+      }
+      break;
+    case "get-birthdate":
+      const datetime = firstTrait(message.nlp, "wit$datetime");
+      console.log(datetime);
+      console.log(datetime.value);
+      response = {
+        text: "What an amazing date!",
+      };
+      break;
+    case "get-days-until-birthday":
+      if (message.text === "yes") {
+        response = {
+          text: `There are ${getHowManyDaysUntilBirthday(
+            user.birthdate
+          )} days until your next birthday`,
+        };
+      } else if (message.text === "no") {
+        response = {
+          text: "Goodbye 👋",
+        };
+      } else {
+        response = {
+          text: "Sorry i did not quite get that, please reply with yes or no",
+        };
+      }
+      break;
+    default:
+      response = {
+        text: "Sorry i did not quite get that, can you repeat?",
+      };
   }
-  if (datetime && datetime.confidence > CONFIDENCE_THRESHOLD) {
-    response = {
-      text: "what a wonderful date!",
-    };
-  }
+  user.addMessage(response.text, "bot");
+
   callSendAPI(sender_psid, response);
 }
 
