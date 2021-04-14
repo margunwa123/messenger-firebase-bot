@@ -1,48 +1,62 @@
 const request = require("request");
 
-// Handles messages events
-function handleMessage(sender_psid, received_message) {
-  let response;
+function firstTrait(nlp, name) {
+  return nlp && nlp.entities && nlp.traits[name] && nlp.traits[name][0];
+}
 
-  // check if the message contains text
-  if (received_message.text) {
-    // create the payload for a basic text message
-    response = {
-      text: `You sent the message ${received_message.text}. Now send me an image!`,
-    };
-  } else if (received_message.attachments) {
-    let attachment_url = received_message.attachments[0].payload.url;
-    response = {
-      attachment: {
-        type: "template",
-        payload: {
-          template_type: "generic",
-          elements: [
-            {
-              title: "Is this the right picture?",
-              subtitle: "Tap a button to answer.",
-              image_url: attachment_url,
-              buttons: [
-                {
-                  type: "postback",
-                  title: "Yes!",
-                  payload: "yes",
-                },
-                {
-                  type: "postback",
-                  title: "No!",
-                  payload: "no",
-                },
-              ],
-            },
-          ],
-        },
-      },
-    };
+// // Handles messages events
+// function handleMessage(sender_psid, received_message) {
+//   let response;
+
+//   // check if the message contains text
+//   if (received_message.text) {
+//     // create the payload for a basic text message
+//     response = {
+//       text: `You sent the message ${received_message.text}. Now send me an image!`,
+//     };
+//   } else if (received_message.attachments) {
+//     let attachment_url = received_message.attachments[0].payload.url;
+//     response = {
+//       attachment: {
+//         type: "template",
+//         payload: {
+//           template_type: "generic",
+//           elements: [
+//             {
+//               title: "Is this the right picture?",
+//               subtitle: "Tap a button to answer.",
+//               image_url: attachment_url,
+//               buttons: [
+//                 {
+//                   type: "postback",
+//                   title: "Yes!",
+//                   payload: "yes",
+//                 },
+//                 {
+//                   type: "postback",
+//                   title: "No!",
+//                   payload: "no",
+//                 },
+//               ],
+//             },
+//           ],
+//         },
+//       },
+//     };
+//   }
+
+//   // Send the response message
+//   callSendAPI(sender_psid, response);
+// }
+
+function handleMessage(sender_psid, message) {
+  // check greeting is here and is confident
+  const greeting = firstTrait(message.nlp, "wit$greetings");
+  if (greeting && greeting.confidence > 0.8) {
+    callSendAPI(sender_psid, "Hi there!");
+  } else {
+    callSendAPI(sender_psid, "default");
   }
-
-  // Send the response message
-  callSendAPI(sender_psid, response);
 }
 
 // Handles messaging_postbacks events
