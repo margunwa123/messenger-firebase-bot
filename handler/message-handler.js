@@ -1,67 +1,12 @@
 const request = require("request");
-const User = require("./models/user");
-const extractName = require("./nlp/extractName");
-const { getHowManyDaysUntilBirthday } = require("./util/birthday");
+const User = require("../models/user");
+const extractName = require("../nlp/extractName");
+const { getHowManyDaysUntilBirthday } = require("../util/birthday");
 const _ = require("lodash");
-const { isSayingYes, isSayingNo } = require("./util/yesorno");
-
-const CONFIDENCE_THRESHOLD = 0.7;
-
-function firstTrait(nlp, name) {
-  return nlp && nlp.entities && nlp.traits[name] && nlp.traits[name][0];
-}
-
-function getEntityValue(nlp, name) {
-  return (
-    nlp && nlp.entities && nlp.entities[name] && nlp.entities[name][0].value
-  );
-}
-
-function getEntityConfidence(nlp, name) {
-  return (
-    nlp &&
-    nlp.entities &&
-    nlp.entities[name] &&
-    nlp.entities[name][0].confidence
-  );
-}
-
-function isEntityPassable(nlp, name) {
-  return (
-    getEntityValue(nlp, name) &&
-    getEntityConfidence(nlp, name) > CONFIDENCE_THRESHOLD
-  );
-}
-
-function createBirthdayAttachment() {
-  return {
-    type: "template",
-    payload: {
-      template_type: "generic",
-      elements: [
-        {
-          title:
-            "Do you want to know how many days are left until your birthday?",
-          subtitle: "Tap a button to answer.",
-          image_url:
-            "https://thumbs.dreamstime.com/b/birthday-cake-decorated-colorful-sprinkles-ten-candles-colorful-birthday-cake-sprinkles-ten-candles-blue-142412983.jpg",
-          buttons: [
-            {
-              type: "postback",
-              title: "Yes!",
-              payload: "yes",
-            },
-            {
-              type: "postback",
-              title: "No!",
-              payload: "no",
-            },
-          ],
-        },
-      ],
-    },
-  };
-}
+const { isSayingYes, isSayingNo } = require("../util/yesorno");
+const { createBirthdayAttachment } = require("./response/birthday");
+const { isTraitPassable } = require("./nlp/trait");
+const { isEntityPassable, getEntityValue } = require("./nlp/entity");
 
 async function handleMessage(sender_psid, message) {
   const user = new User(sender_psid);
@@ -71,7 +16,7 @@ async function handleMessage(sender_psid, message) {
   user.addMessage(message.text, "self");
   let response;
 
-  const greeting = firstTrait(message.nlp, "wit$greetings");
+  const isGreeting = isTraitPassable(message.nlp, "wit$greetings");
   if (isEntityPassable(message.nlp, "wit$thanks")) {
     response = { text: "Your welcome!" };
     callSendAPI(sender_psid, response);
@@ -91,7 +36,7 @@ async function handleMessage(sender_psid, message) {
         };
         user.setName(_.capitalize(name));
         user.setContext("get-birthdate");
-      } else if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
+      } else if (isGreeting) {
         response = {
           text: "Hello there! Can i have your name?",
         };
@@ -154,7 +99,12 @@ async function handleMessage(sender_psid, message) {
         user.setContext("get-days-until-birthday");
       }
   }
-  user.addMessage(response.text, "bot");
+  user.addMessage(
+    response.text ??
+      response.attachment.payload.elements[0].title ??
+      "message cannot be determined",
+    "bot"
+  );
 
   callSendAPI(sender_psid, response);
 }

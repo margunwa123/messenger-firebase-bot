@@ -1,5 +1,5 @@
 const express = require("express");
-const { handleMessage, handlePostback } = require("./message-handler");
+const { handleMessage, handlePostback } = require("./handler/message-handler");
 const initiateRouter = require("./routes");
 
 const PORT = process.env.PORT || 1337;
