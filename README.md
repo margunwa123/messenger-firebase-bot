@@ -1,6 +1,7 @@
 # Messenger Chatbot
 
 URL : https://www.messenger.com/t/105670314980606
+Heroku Server URL: https://chatbot-messenger-app-123.herokuapp.com
 
 # How to run locally:
 
@@ -47,6 +48,8 @@ App: Hello there, can I have your name?<br/>
 
 # API Documentation
 
+If you want to test the API from deployed server, change http://localhost:1337 to https://chatbot-messenger-app-123.herokuapp.com
+
 1. get all messages
    path: _http://localhost:1337/messages?userId={USERID}_ <br/>
    method: DELETE <br/>
@@ -63,7 +66,7 @@ App: Hello there, can I have your name?<br/>
 
 # Example API Usage
 
-_GET_ http://localhost:1337/messages?userId=3854666931248323
+_GET_ http://https://chatbot-messenger-app-123.herokuapp.com/messages?userId=3854666931248323/messages?userId=3854666931248323
 <br/>
 
 Result:
