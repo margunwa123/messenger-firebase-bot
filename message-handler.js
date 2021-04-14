@@ -2,6 +2,7 @@ const request = require("request");
 const User = require("./models/user");
 const extractName = require("./nlp/extractName");
 const { getHowManyDaysUntilBirthday } = require("./util/birthday");
+const _ = require("lodash");
 
 const CONFIDENCE_THRESHOLD = 0.7;
 
@@ -33,7 +34,7 @@ async function handleMessage(sender_psid, message) {
         response = {
           text: `Hello ${name}, nice to meet you! can I have your birthday?`,
         };
-        user.setName(name);
+        user.setName(_.capitalize(name));
         user.setContext("get-birthdate");
       } else if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
         response = {
@@ -62,15 +63,18 @@ async function handleMessage(sender_psid, message) {
       break;
     case "get-days-until-birthday":
       if (message.text === "yes") {
+        console.log(user.birthdate);
         response = {
           text: `There are ${getHowManyDaysUntilBirthday(
             user.birthdate
           )} days until your next birthday`,
         };
+        user.setContext("user-complete");
       } else if (message.text === "no") {
         response = {
           text: "Goodbye 👋",
         };
+        user.setContext("user-complete");
       } else {
         response = {
           text:
@@ -78,10 +82,28 @@ async function handleMessage(sender_psid, message) {
         };
       }
       break;
+    case "user-complete":
+      response = {
+        text: `Welcome back ${user.name}!, do you want to know how many days are left until your birthday?`,
+      };
+      user.setContext("user-complete-2");
+      break;
+    case "user-complete-2":
+      response = {};
+      break;
     default:
       response = {
-        text: "Sorry i did not quite get that, can you repeat?",
+        text:
+          "There is quite bit of a problem, please try sending another message",
       };
+      const data = await user.getUser();
+      if (!data.name) {
+        user.setContext("get-name");
+      } else if (!data.birthdate) {
+        user.setContext("get-birthdate");
+      } else {
+        user.setContext("get-days-until-birthday");
+      }
   }
   user.addMessage(response.text, "bot");
 
