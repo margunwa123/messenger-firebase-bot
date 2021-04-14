@@ -10,7 +10,9 @@ function firstTrait(nlp, name) {
 }
 
 function getEntityValue(nlp, name) {
-  return nlp && nlp.entities && nlp.entities[name] && nlp.entities[name].value;
+  return (
+    nlp && nlp.entities && nlp.entities[name] && nlp.entities[name][0].value
+  );
 }
 
 async function handleMessage(sender_psid, message) {
@@ -44,6 +46,7 @@ async function handleMessage(sender_psid, message) {
       }
       break;
     case "get-birthdate":
+      console.log(JSON.stringify(message.nlp));
       const datetime = getEntityValue(message.nlp, "wit$datetime:datetime");
       if (datetime) {
         response = {
