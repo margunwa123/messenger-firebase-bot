@@ -3,6 +3,7 @@ const User = require("./models/user");
 const extractName = require("./nlp/extractName");
 const { getHowManyDaysUntilBirthday } = require("./util/birthday");
 const _ = require("lodash");
+const { isSayingYes, isSayingNo } = require("./util/yesorno");
 
 const CONFIDENCE_THRESHOLD = 0.7;
 
@@ -16,6 +17,22 @@ function getEntityValue(nlp, name) {
   );
 }
 
+function getEntityConfidence(nlp, name) {
+  return (
+    nlp &&
+    nlp.entities &&
+    nlp.entities[name] &&
+    nlp.entities[name][0].confidence
+  );
+}
+
+function isEntityPassable(nlp, name) {
+  return (
+    getEntityValue(nlp, name) &&
+    getEntityConfidence(nlp, name) > CONFIDENCE_THRESHOLD
+  );
+}
+
 async function handleMessage(sender_psid, message) {
   const user = new User(sender_psid);
   const userData = await user.getUser();
@@ -24,9 +41,17 @@ async function handleMessage(sender_psid, message) {
   user.addMessage(message.text, "self");
   let response;
 
-  // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
-
+  if (isEntityPassable(message.nlp, "wit$thanks")) {
+    response = { text: "Your welcome!" };
+    callSendAPI(sender_psid, response);
+    return;
+  }
+  if (isEntityPassable(message.nlp, "wit$bye")) {
+    response = { text: "See you later!" };
+    callSendAPI(sender_psid, response);
+    return;
+  }
   switch (user.context) {
     case "get-name":
       const name = extractName(message.text);
@@ -47,11 +72,37 @@ async function handleMessage(sender_psid, message) {
       }
       break;
     case "get-birthdate":
-      console.log(JSON.stringify(message.nlp));
       const datetime = getEntityValue(message.nlp, "wit$datetime:datetime");
       if (datetime) {
         response = {
           text: `What a beautiful date, ${user.name}! Do you want to get how many days are left until your birthday?`,
+          attachment: {
+            type: "template",
+            payload: {
+              template_type: "generic",
+              elements: [
+                {
+                  title:
+                    "Do you want to know how many days are left until your birthday?",
+                  subtitle: "Tap a button to answer.",
+                  image_url:
+                    "https://thumbs.dreamstime.com/b/birthday-cake-decorated-colorful-sprinkles-ten-candles-colorful-birthday-cake-sprinkles-ten-candles-blue-142412983.jpg",
+                  buttons: [
+                    {
+                      type: "postback",
+                      title: "Yes!",
+                      payload: "yes",
+                    },
+                    {
+                      type: "postback",
+                      title: "No!",
+                      payload: "no",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
         };
         user.setBirthdate(new Date(datetime));
         user.setContext("get-days-until-birthday");
@@ -62,15 +113,14 @@ async function handleMessage(sender_psid, message) {
       }
       break;
     case "get-days-until-birthday":
-      if (message.text === "yes") {
-        console.log(user.birthdate);
+      if (isSayingYes(message.text)) {
         response = {
           text: `There are ${getHowManyDaysUntilBirthday(
             user.birthdate
           )} days until your next birthday`,
         };
         user.setContext("user-complete");
-      } else if (message.text === "no") {
+      } else if (isSayingNo(message.text)) {
         response = {
           text: "Goodbye 👋",
         };
@@ -108,7 +158,11 @@ async function handleMessage(sender_psid, message) {
 }
 
 // Handles messaging_postbacks events
-function handlePostback(sender_psid, received_postback) {
+async function handlePostback(sender_psid, received_postback) {
+  const user = new User(sender_psid);
+  const userData = await user.getUser();
+  if (!userData) await user.saveUser();
+
   let response;
 
   // get the payload for the postback
@@ -117,14 +171,16 @@ function handlePostback(sender_psid, received_postback) {
   // set the response based on the postback payload
   if (payload === "yes") {
     response = {
-      text: "Thanks!",
+      text: `There are ${getHowManyDaysUntilBirthday(
+        user.birthdate
+      )} days until your next birthday`,
     };
   } else if (payload === "no") {
     response = {
-      text: "Oops, try sending another image.",
+      text: "Goodbye 👋",
     };
   }
-
+  user.setContext("user-complete");
   callSendAPI(sender_psid, response);
 }
 
