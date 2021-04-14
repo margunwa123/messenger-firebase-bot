@@ -52,11 +52,18 @@ function firstTrait(nlp, name) {
 function handleMessage(sender_psid, message) {
   // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
+  let response;
   if (greeting && greeting.confidence > 0.8) {
-    callSendAPI(sender_psid, "Hi there!");
+    console.log(message.nlp);
+    response = {
+      text: "hello there",
+    };
   } else {
-    callSendAPI(sender_psid, "default");
+    response = {
+      text: "default sending",
+    };
   }
+  callSendAPI(sender_psid, response);
 }
 
 // Handles messaging_postbacks events
