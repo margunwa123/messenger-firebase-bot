@@ -7,6 +7,7 @@ class User {
   birthdate = null;
   ref;
   messagesRef;
+  context = "get-name";
 
   constructor(sender_psid) {
     this.ref = userCol.doc(sender_psid);
@@ -15,12 +16,9 @@ class User {
 
   async saveUser() {
     const writeRes = await this.ref.set({
-      name: null,
-      birthdate: null,
+      name: this.name,
+      birthdate: this.birthdate,
     });
-    this.name = null;
-    this.birthdate = null;
-    console.log("user saved");
     return writeRes;
   }
 
@@ -28,6 +26,13 @@ class User {
     this.name = name;
     this.ref.update({
       name,
+    });
+  }
+
+  async setContext(context) {
+    this.context = context;
+    this.ref.update({
+      context,
     });
   }
 
@@ -39,7 +44,13 @@ class User {
   }
 
   async getUser() {
-    return (await this.ref.get()).data();
+    const data = (await this.ref.get()).data();
+    if (data) {
+      this.name = data.name;
+      this.birthdate = new Date(data.birthdate._seconds);
+      this.context = data.context;
+    }
+    return data;
   }
 
   async getName() {

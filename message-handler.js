@@ -12,11 +12,13 @@ async function handleMessage(sender_psid, message) {
   const userData = await user.getUser();
   if (!userData) await user.saveUser();
 
+  console.log(user.context);
+
   // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
   const datetime = firstTrait(message.nlp, "wit$datetime:$datetime");
   let response;
-  console.log(JSON.stringify(message.nlp));
+  console.log(JSON.stringify(datetime));
   if (greeting && greeting.confidence > CONFIDENCE_THRESHOLD) {
     response = {
       text: "Hello there! Can I have your name?",
