@@ -1,16 +1,16 @@
 const request = require("request");
 const User = require("./models/user");
 
-const CONFIDENCE_THRESHOLD =  0.7;
+const CONFIDENCE_THRESHOLD = 0.7;
 
 function firstTrait(nlp, name) {
   return nlp && nlp.entities && nlp.traits[name] && nlp.traits[name][0];
 }
 
-function handleMessage(sender_psid, message) {      
+async function handleMessage(sender_psid, message) {
   const user = new User(sender_psid);
   const userData = await user.getUser();
-  if(!userData) await user.saveUser();
+  if (!userData) await user.saveUser();
 
   // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
@@ -26,10 +26,10 @@ function handleMessage(sender_psid, message) {
       text: "Hello there! Can I have your name?",
     };
   }
-  if(datetime && datetime.confidence > CONFIDENCE_THRESHOLD) {
+  if (datetime && datetime.confidence > CONFIDENCE_THRESHOLD) {
     response = {
-      text: "what a wonderful date!"
-    }
+      text: "what a wonderful date!",
+    };
   }
   callSendAPI(sender_psid, response);
 }
