@@ -53,8 +53,8 @@ function handleMessage(sender_psid, message) {
   // check greeting is here and is confident
   const greeting = firstTrait(message.nlp, "wit$greetings");
   let response;
+  console.log(message.nlp);
   if (greeting && greeting.confidence > 0.8) {
-    console.log(message.nlp);
     response = {
       text: "hello there",
     };
