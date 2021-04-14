@@ -33,6 +33,36 @@ function isEntityPassable(nlp, name) {
   );
 }
 
+function createBirthdayAttachment() {
+  return {
+    type: "template",
+    payload: {
+      template_type: "generic",
+      elements: [
+        {
+          title:
+            "Do you want to know how many days are left until your birthday?",
+          subtitle: "Tap a button to answer.",
+          image_url:
+            "https://thumbs.dreamstime.com/b/birthday-cake-decorated-colorful-sprinkles-ten-candles-colorful-birthday-cake-sprinkles-ten-candles-blue-142412983.jpg",
+          buttons: [
+            {
+              type: "postback",
+              title: "Yes!",
+              payload: "yes",
+            },
+            {
+              type: "postback",
+              title: "No!",
+              payload: "no",
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
 async function handleMessage(sender_psid, message) {
   const user = new User(sender_psid);
   const userData = await user.getUser();
@@ -76,33 +106,7 @@ async function handleMessage(sender_psid, message) {
       if (datetime) {
         response = {
           text: `What a beautiful date, ${user.name}! Do you want to get how many days are left until your birthday?`,
-          attachment: {
-            type: "template",
-            payload: {
-              template_type: "generic",
-              elements: [
-                {
-                  title:
-                    "Do you want to know how many days are left until your birthday?",
-                  subtitle: "Tap a button to answer.",
-                  image_url:
-                    "https://thumbs.dreamstime.com/b/birthday-cake-decorated-colorful-sprinkles-ten-candles-colorful-birthday-cake-sprinkles-ten-candles-blue-142412983.jpg",
-                  buttons: [
-                    {
-                      type: "postback",
-                      title: "Yes!",
-                      payload: "yes",
-                    },
-                    {
-                      type: "postback",
-                      title: "No!",
-                      payload: "no",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
+          attachment: createBirthdayAttachment(),
         };
         user.setBirthdate(new Date(datetime));
         user.setContext("get-days-until-birthday");
@@ -129,12 +133,14 @@ async function handleMessage(sender_psid, message) {
         response = {
           text:
             "Sorry i did not quite get that, do you want to get how many days are left until your birthday?",
+          attachment: createBirthdayAttachment(),
         };
       }
       break;
     case "user-complete":
       response = {
         text: `Welcome back ${user.name}!, do you want to know how many days are left until your birthday?`,
+        attachment: createBirthdayAttachment(),
       };
       user.setContext("get-days-until-birthday");
       break;
