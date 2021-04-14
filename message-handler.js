@@ -9,6 +9,10 @@ function firstTrait(nlp, name) {
   return nlp && nlp.entities && nlp.traits[name] && nlp.traits[name][0];
 }
 
+function getEntityValue(nlp, name) {
+  return nlp && nlp.entities && nlp.entities[name] && nlp.entities[name].value;
+}
+
 async function handleMessage(sender_psid, message) {
   const user = new User(sender_psid);
   const userData = await user.getUser();
@@ -40,12 +44,18 @@ async function handleMessage(sender_psid, message) {
       }
       break;
     case "get-birthdate":
-      const datetime = firstTrait(message.nlp, "wit$datetime");
-      console.log(JSON.stringify(message.nlp));
-      console.log(datetime);
-      response = {
-        text: "What an amazing date!",
-      };
+      const datetime = getEntityValue(message.nlp, "wit$datetime:datetime");
+      if (datetime) {
+        response = {
+          text: `What a beautiful date, ${user.name}! Do you want to get how many days are left until your birthday?`,
+        };
+        user.setBirthdate(new Date(datetime));
+        user.setContext("get-days-until-birthday");
+      } else {
+        response = {
+          text: `Sorry i did not quite get that, ${user.name}, can you repeat it for me? (try using day-monthname-year format)`,
+        };
+      }
       break;
     case "get-days-until-birthday":
       if (message.text === "yes") {
@@ -60,7 +70,8 @@ async function handleMessage(sender_psid, message) {
         };
       } else {
         response = {
-          text: "Sorry i did not quite get that, please reply with yes or no",
+          text:
+            "Sorry i did not quite get that, do you want to get how many days are left until your birthday?",
         };
       }
       break;

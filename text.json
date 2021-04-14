@@ -1,0 +1,37 @@
+{
+  "intents": [],
+  "entities": {
+    "wit$datetime:datetime": [
+      {
+        "id": "698488774257035",
+        "name": "wit$datetime",
+        "role": "datetime",
+        "start": 0,
+        "end": 15,
+        "body": "14 January 2019",
+        "confidence": 0.966,
+        "entities": [],
+        "type": "value",
+        "grain": "day",
+        "value": "2019-01-14T00:00:00.000+07:00",
+        "values": [
+          {
+            "type": "value",
+            "grain": "day",
+            "value": "2019-01-14T00:00:00.000+07:00"
+          }
+        ]
+      }
+    ]
+  },
+  "traits": {
+    "wit$sentiment": [
+      {
+        "id": "5ac2b50a-44e4-466e-9d49-bad6bd40092c",
+        "value": "neutral",
+        "confidence": 0.8812
+      }
+    ]
+  },
+  "detected_locales": [{ "locale": "en_XX", "confidence": 0.978 }]
+}
