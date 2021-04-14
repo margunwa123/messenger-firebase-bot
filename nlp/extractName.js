@@ -13,7 +13,10 @@ function extractName(string) {
   );
   const nounIndex = verbIndex + 1;
   try {
-    return taggedWords[nounIndex].token;
+    if (verbIndex != -1) {
+      return taggedWords[nounIndex].token;
+    }
+    return null;
   } catch (err) {
     // index error
     return null;
